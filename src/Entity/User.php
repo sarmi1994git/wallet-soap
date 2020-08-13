@@ -41,4 +41,24 @@ class User
     {
         return $this->id;
     }
+
+    public function getIdentification(): ?string {
+        return $this->identification;
+    }
+
+    public function getFirstname(): ?string {
+        return $this->firstname;
+    }
+
+    public function getLastname(): ?string {
+        return $this->lastname;
+    }
+
+    public function getEmail(): ?string {
+        return $this->email;
+    }
+
+    public function getPhone(): ?string {
+        return $this->phone;
+    }
 }
