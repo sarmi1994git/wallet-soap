@@ -13,6 +13,14 @@
         <xsd:schema targetNamespace="urn:walletwsdl">
             <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
             <xsd:import namespace="http://schemas.xmlsoap.org/wsdl/"/>
+            <xsd:element name="createUserResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="code" type="xsd:string"/>
+                        <xsd:element name="message" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
         </xsd:schema>
     </types>
 
@@ -25,7 +33,7 @@
     </message>
 
     <message name="createUserResponse">
-        <part name="return" type="xsd:string"/>
+        <part element="tns:createUserResponse" name="response"/>
     </message>
 
     <portType name="walletwsdlPortType">

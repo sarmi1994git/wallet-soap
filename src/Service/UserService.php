@@ -6,29 +6,52 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityManager;
 
-class UserService extends Controller{
+class UserService{
+
+
+	private $em;
+
+    public function __construct(EntityManagerInterface $em) {
+        $this->em = $em;
+    }
 	
 	public function createUser($identification, $firstname, $lastname, $email, $phone) {
-		$code;
-		$message = '';
-		$entityManager = $this->getDoctrine()->getManager();
-		$validate = $this->validateInputs($identification, $firstname, $lastname, $email, $phone);
+		$response = new \stdClass;
+		$response->code = 0;
+		$response->message = '';
+		try {
+			$validate = $this->validateInputs($identification, $firstname, $lastname, $email, $phone);
 
-		if ($validate->code === 0) {
-			//crear usuario
-			$user = new User();
-			$user->identification = $identification;
-			$user->firstname = $firstname;
-			$user->lastname = $lastname;
-			$user->email = $email;
-			$user->phone = $phone;
-			$entityManager->persist($user);
-			$entityManager->flush();
-			$message = 'User created';
-		} else {
-			$message = $validate->message;
+			if ($validate->code === 0) {
+				$repository = $this->em->getRepository(User::class);
+				$userByEmail = $repository->findByEmail($email);
+				$userByIdentification = $repository->findByIdentification($identification);
+				if (!$userByEmail && !$userByIdentification) {
+					//crear usuario
+					$user = new User();
+					$user->setIdentification($identification);
+					$user->setFirstname($firstname);
+					$user->setLastname($lastname);
+					$user->setEmail($email);
+					$user->setPhone($phone);
+					$this->em->persist($user);
+					$this->em->flush();
+					$response->code = 0;
+					$response->message = 'User created';
+				} else {
+					$response->code = 1;
+					$response->message = 'El usuario ya ha sido registrado anteriormente';
+				}
+			} else {
+				$response->code = 1;
+				$response->message = $validate->message;
+			}
+			return $response;
+		} catch(Exception $e) {
+			$response->code = 1;
+			$response->message = 'Exception: '.$e->getMessage();
+			return $response;
 		}
-		return $message;
 	}
 
 	public function validateInputs($identification, $firstname, $lastname, $email, $phone) {
